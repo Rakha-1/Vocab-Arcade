@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocab Arcade - Dual Language Word Connect & Learning Hub</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕹️</text></svg>">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Ambient Particle Animation Canvas -->
+    <canvas id="bg-particles-canvas"></canvas>
+    <!-- Fireworks Celebration Overlay Canvas -->
+    <canvas id="fireworks-canvas"></canvas>
+
+    <!-- ==========================================
+         AUTOMATIC LANDSCAPE ORIENTATION WARNING (Point 10)
+         ========================================== -->
+    <div id="landscape-warning-overlay" class="landscape-warning-overlay">
+        <div class="landscape-warning-card glass-panel">
+            <div class="rotate-device-icon">📱</div>
+            <h2 class="rotate-title">MODE LANDSCAPE DIPERLUKAN</h2>
+            <p class="rotate-desc">
+                Permainan Vocab Arcade dirancang optimal untuk orientasi horizontal. Silakan putar perangkat Anda ke posisi landscape (mendatar) untuk melanjutkan!
+            </p>
+            <div class="rotate-badge">
+                <span>🔄</span> Putar Layar Perangkat
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom In-Game Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <div class="app-container">
+
+        <!-- ==========================================
+             TOP HEADER / PROFILE NAVIGATION
+             (Music/Song Toggle Removed for Clean UI)
+             ========================================== -->
+        <header class="top-nav glass-panel">
+            <div class="brand-logo" id="btn-home-logo">
+                <span class="brand-icon">🕹️</span>
+                <span class="brand-title">VOCAB ARCADE</span>
+            </div>
+
+            <div class="nav-actions">
+                <!-- Fullscreen Toggle Button -->
+                <button class="fullscreen-toggle-btn" id="btn-toggle-fullscreen" title="Layar Penuh (Fullscreen)">
+                    <span class="fs-icon" id="fs-btn-icon">⛶</span>
+                    <span class="fs-text">Fullscreen</span>
+                </button>
+
+                <!-- Smooth Animated Gems Counter -->
+                <div class="currency-badge" id="gems-badge-container">
+                    <span class="gem-icon">💎</span>
+                    <span id="header-gems-count">100</span>
+                </div>
+
+                <div class="profile-pill" id="btn-open-profile">
+                    <span class="avatar-badge" id="header-avatar-icon">🧑‍💻</span>
+                    <div class="profile-meta">
+                        <span class="profile-name" id="header-profile-name">Cendekia</span>
+                        <span class="profile-title" id="header-profile-title">Penjelajah Kata</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ==========================================
+             VIEW 1: MAIN LOBBY (MENU UTAMA)
+             ========================================== -->
+        <main id="view-lobby" class="view active">
+            <!-- Floating Online Time Reward Chest (Placed Prominently at Top) -->
+            <div class="online-reward-banner glass-panel" style="margin-bottom: 20px;">
+                <div class="chest-info">
+                    <span class="chest-icon">🎁</span>
+                    <div class="chest-text">
+                        <h4>Peti Hadiah Waktu Bermain</h4>
+                        <p id="chest-status-text">Klaim Gems gratis saat kamu aktif menjelajah kosa kata!</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span id="chest-timer-display" style="font-weight: 800; color: var(--neon-gold);">00:00</span>
+                    <button class="claim-btn" id="btn-claim-chest">Klaim +30 💎</button>
+                </div>
+            </div>
+
+            <!-- Hero Banner -->
+            <section class="lobby-hero glass-panel">
+                <h2>DUAL LANGUAGE ARCADE</h2>
+                <p>Tingkatkan penguasaan kosa kata Bahasa Indonesia & English dalam arena arcade teka-teki kata dengan estetika dark blue modern!</p>
+
+                <div class="progress-overview">
+                    <div class="prog-item">
+                        <span class="prog-val" id="lobby-stat-words">0</span>
+                        <span class="prog-lbl">Kata Ditemukan</span>
+                    </div>
+                    <div class="prog-item">
+                        <span class="prog-val" id="lobby-stat-id-lvl">0 / 100</span>
+                        <span class="prog-lbl">Level Indonesia</span>
+                    </div>
+                    <div class="prog-item">
+                        <span class="prog-val" id="lobby-stat-en-lvl">0 / 100</span>
+                        <span class="prog-lbl">Level English</span>
+                    </div>
+                    <div class="prog-item">
+                        <span class="prog-val" id="lobby-stat-total-solved">0%</span>
+                        <span class="prog-lbl">Total Selesai</span>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Menu Cards Grid -->
+            <section class="menu-grid">
+                <div class="menu-card featured" id="nav-btn-play">
+                    <span class="card-icon">⚡</span>
+                    <h3 class="card-title">Mulai Level</h3>
+                    <p class="card-desc">100 Level Bahasa Indonesia + 100 Level English lengkap dengan audio TTS dan definisi otomatis.</p>
+                </div>
+
+                <div class="menu-card" id="nav-btn-speedrun">
+                    <span class="card-icon">⏱️</span>
+                    <h3 class="card-title">Speed Run</h3>
+                    <p class="card-desc">Tantangan cepat 60 detik menghubungkan kata arcade untuk rekor skor tertinggi dan bonus Gems.</p>
+                </div>
+
+                <div class="menu-card" id="nav-btn-tebak-gambar">
+                    <span class="card-icon">🎨</span>
+                    <h3 class="card-title">Tebak Gambar</h3>
+                    <p class="card-desc">Tebak gambar kosa kata Rebus Puzzle dengan tingkat Easy, Normal, Hard & Extreme!</p>
+                </div>
+
+                <div class="menu-card" id="nav-btn-daily-quiz">
+                    <span class="card-icon">📅</span>
+                    <h3 class="card-title">Daily Quiz</h3>
+                    <p class="card-desc" id="daily-quiz-card-desc">Tantangan 7 kuis kosa kata harian dengan 4 pilihan acak (A, B, C, D) berhadiah Gems.</p>
+                </div>
+
+                <div class="menu-card" id="nav-btn-archive">
+                    <span class="card-icon">🏞️</span>
+                    <h3 class="card-title">Background Archive</h3>
+                    <p class="card-desc">Koleksi tema warna visual dinamis terpisah untuk Bahasa Indonesia &amp; English.</p>
+                </div>
+
+                <div class="menu-card" id="nav-btn-certificates">
+                    <span class="card-icon">🏆</span>
+                    <h3 class="card-title">Sertifikat & Prestasi</h3>
+                    <p class="card-desc">Sistem Penghargaan 3-Tier: Sertifikat Bahasa Indonesia, English Proficiency, & Trophy Grand Finale!</p>
+                </div>
+
+                <div class="menu-card" id="nav-btn-gudang-kata">
+                    <span class="card-icon">📚</span>
+                    <h3 class="card-title">Gudang Kata</h3>
+                    <p class="card-desc">Kamus bilingual kosa kata Indonesia &amp; English. Buka kata bertanda "?" untuk definisi dan audio TTS!</p>
+                </div>
+
+                <div class="menu-card" id="nav-btn-tutorial">
+                    <span class="card-icon">📖</span>
+                    <h3 class="card-title">Tutorial &amp; Panduan</h3>
+                    <p class="card-desc">Panduan lengkap cara bermain menghubungkan kata, tebak gambar, booster, dan fitur game.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- ==========================================
+             VIEW 2: LEVEL & LANGUAGE SELECTOR
+             ========================================== -->
+        <section id="view-selector" class="view">
+            <div class="selector-header">
+                <button class="btn-secondary" id="btn-back-from-selector">← Kembali</button>
+                <h2 style="font-family: var(--font-heading); font-size: 1.8rem;">PILIH LEVEL KATA</h2>
+                <div style="width: 80px;"></div>
+            </div>
+
+            <!-- Clean Language Switcher Tabs -->
+            <div class="lang-tabs">
+                <button class="lang-tab active" id="tab-lang-id">
+                    <span>🇮🇩</span> Bahasa Indonesia
+                </button>
+                <button class="lang-tab" id="tab-lang-en">
+                    <span>🇬🇧</span> English
+                </button>
+            </div>
+
+            <!-- Level Grid (1 to 100) -->
+            <div class="level-grid glass-panel" id="level-grid-container">
+                <!-- Dynamically generated level tiles -->
+            </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 3: WORD CONNECT GAMEPLAY
+             ========================================== -->
+        <section id="view-game" class="view">
+            <div class="game-top-bar glass-panel">
+                <button class="btn-secondary" id="btn-back-from-game">← Menu</button>
+                <div class="game-title-info">
+                    <div class="game-level-num" id="game-active-level-label">LEVEL 1</div>
+                    <span class="game-lang-badge" id="game-active-lang-label">Bahasa Indonesia</span>
+                </div>
+                <div class="currency-badge" id="game-gems-badge-container">
+                    <span class="gem-icon">💎</span>
+                    <span id="game-gems-count">100</span>
+                </div>
+            </div>
+
+            <div class="game-layout">
+                <!-- Left: Crossword Word Grid Board -->
+                <div class="crossword-board glass-panel" id="crossword-board">
+                    <!-- Word rows & letter tiles generated dynamically -->
+                </div>
+
+                <!-- Right: Wheel, Controls & Bonus Jar -->
+                <div class="play-controls-panel">
+                    <!-- Interactive Tap-to-Connect Preview & Action Controls -->
+                    <div class="word-preview-row">
+                        <button class="word-action-btn clear-btn" id="btn-clear-word" title="Hapus Huruf Terakhir (⌫)">⌫</button>
+                        <div class="current-word-preview glass-panel" id="current-word-preview" title="Ketuk untuk Kirim Kata">- - -</div>
+                        <button class="word-action-btn reset-btn" id="btn-reset-word" title="Reset Pilihan Huruf (Esc)">↺</button>
+                        <button class="word-action-btn submit-btn" id="btn-submit-word" title="Kirim Kata (✓ / Enter)">✓</button>
+                    </div>
+
+                    <!-- Circular Letter Wheel -->
+                    <div class="wheel-wrapper" id="wheel-wrapper">
+                        <svg class="wheel-svg-layer" id="wheel-svg"></svg>
+                        <button class="wheel-center-btn" id="btn-shuffle-wheel" title="Acak Huruf">🔀</button>
+                    </div>
+
+                    <!-- Virtual Keyboard Toggle & Letter Board -->
+                    <div class="wheel-keyboard-toggle-bar">
+                        <button class="btn-toggle-wheel-kb" id="btn-toggle-wheel-kb" type="button" title="Tampilkan/Tutup Keyboard Virtual">⌨️ Tampilkan Keyboard</button>
+                    </div>
+                    <div class="wheel-virtual-keyboard glass-panel" id="wheel-virtual-keyboard" style="display: none;"></div>
+
+                    <!-- Boosters / Power-ups Bar -->
+                    <div class="booster-bar">
+                        <button class="booster-btn" id="btn-booster-wand" title="Buka 1 huruf acak">
+                            <span class="b-icon">🪄</span>
+                            <span>Sihir (40💎)</span>
+                        </button>
+                        <button class="booster-btn" id="btn-booster-bomb" title="Ledakkan & buka 3 huruf">
+                            <span class="b-icon">💣</span>
+                            <span>Bom (75💎)</span>
+                        </button>
+                        <button class="booster-btn" id="btn-booster-hammer" title="Ketuk petak huruf kosong mana saja untuk membukanya">
+                            <span class="b-icon">🔨</span>
+                            <span>Palu (50💎)</span>
+                        </button>
+                    </div>
+
+                    <!-- Bonus Words Jar -->
+                    <div class="bonus-jar-card glass-panel" id="bonus-jar-card">
+                        <div class="jar-left">
+                        <span class="jar-icon">🏺</span>
+                            <div class="jar-text">
+                                <h4>Bonus Words Jar</h4>
+                                <p>+5 💎 per kata ekstra valid non-grid</p>
+                            </div>
+                        </div>
+                        <span class="jar-count-badge" id="bonus-jar-count">0 Kata</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 4: SPEED RUN MODE
+             ========================================== -->
+        <section id="view-speedrun" class="view">
+            <div class="selector-header">
+                <button class="btn-secondary" id="btn-back-from-speedrun">← Menu</button>
+                <h2 style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--neon-pink);">SPEED RUN ARCADE (60s)</h2>
+                <div style="width: 80px;"></div>
+            </div>
+
+            <div class="speedrun-timer-bar" style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+                <div id="speedrun-timer-fill" style="height: 100%; background: linear-gradient(90deg, var(--neon-emerald), var(--neon-pink)); width: 100%; transition: width 1s linear;"></div>
+            </div>
+
+            <div class="glass-panel" style="display: flex; justify-content: space-around; padding: 12px; margin-bottom: 18px;">
+                <div>Waktu: <b id="speedrun-time-display" style="color: var(--neon-cyan); font-size: 1.3rem;">60s</b></div>
+                <div>Skor: <b id="speedrun-score-display" style="color: var(--neon-gold); font-size: 1.3rem;">0</b></div>
+                <div>Gems: <b id="speedrun-gems-earned" style="color: var(--neon-emerald); font-size: 1.3rem;">+0 💎</b></div>
+            </div>
+
+            <div class="game-layout">
+                <div class="crossword-board glass-panel" id="speedrun-board">
+                    <!-- Board for speed run -->
+                </div>
+                <div class="play-controls-panel">
+                    <div class="word-preview-row">
+                        <button class="word-action-btn clear-btn" id="btn-speedrun-clear" title="Hapus Huruf (⌫)">⌫</button>
+                        <div class="current-word-preview glass-panel" id="speedrun-word-preview" title="Ketuk untuk Kirim Kata">- - -</div>
+                        <button class="word-action-btn reset-btn" id="btn-speedrun-reset" title="Reset Pilihan Huruf (Esc)">↺</button>
+                        <button class="word-action-btn submit-btn" id="btn-speedrun-submit" title="Kirim Kata (✓ / Enter)">✓</button>
+                    </div>
+                    <div class="wheel-wrapper" id="speedrun-wheel-wrapper">
+                        <svg class="wheel-svg-layer" id="speedrun-wheel-svg"></svg>
+                        <button class="wheel-center-btn" id="btn-speedrun-shuffle">🔀</button>
+                    </div>
+                    <div class="wheel-keyboard-toggle-bar">
+                        <button class="btn-toggle-wheel-kb" id="btn-speedrun-toggle-kb" type="button" title="Tampilkan/Tutup Keyboard Virtual">⌨️ Tampilkan Keyboard</button>
+                    </div>
+                    <div class="wheel-virtual-keyboard glass-panel" id="speedrun-virtual-keyboard" style="display: none;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 5: MINI-GAME: ADVANCED TEBAK GAMBAR
+             ========================================== -->
+        <section id="view-tebak-gambar" class="view">
+            <div class="selector-header">
+                <button class="btn-secondary" id="btn-back-from-tebak">← Menu</button>
+                <h2 style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--neon-cyan);">TEBAK GAMBAR KOSAKATA</h2>
+                <div style="width: 80px;"></div>
+            </div>
+
+            <!-- Difficulty Selector Tabs -->
+            <div class="difficulty-selector-bar">
+                <button class="diff-btn active" data-diff="easy">Mudah (1 Gambar)</button>
+                <button class="diff-btn" data-diff="normal">Normal (2 Gambar)</button>
+                <button class="diff-btn" data-diff="hard">Sulit (3 Gambar + Coret Huruf)</button>
+                <button class="diff-btn" data-diff="extreme">Extreme (Multi Clue + Math)</button>
+            </div>
+
+            <div class="minigame-card glass-panel" style="max-width: 680px; margin: 0 auto; padding: 24px; text-align: center;">
+                <div style="font-size: 0.85rem; color: var(--neon-gold); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;" id="tebak-level-indicator">TINGKAT: MUDAH</div>
+                
+                <!-- Visual Rebus Puzzle Clue Board -->
+                <div class="rebus-board" id="tebak-rebus-board">
+                    <!-- Dynamic Rebus Items rendered here -->
+                </div>
+
+                <p class="tebak-clue" id="tebak-clue-text" style="font-size: 1.05rem; margin-bottom: 14px;">Petunjuk deskripsi kata...</p>
+                <div class="tebak-hint-letters" id="tebak-hint-letters" style="font-family: var(--font-heading); font-size: 1.8rem; letter-spacing: 6px; color: var(--neon-gold); margin-bottom: 18px;">B _ L _ N</div>
+
+                <!-- Input with Direct Enter Support & Dedicated Kirim Button (Point 11) -->
+                <div class="tebak-input-wrapper">
+                    <input type="text" id="tebak-user-input" class="tebak-input" placeholder="KETIK JAWABAN (ENTER)" maxlength="32" autocomplete="off" autocapitalize="characters">
+                    <button class="btn-primary" id="btn-submit-tebak" title="Kirim Jawaban (Enter)">Kirim (↵)</button>
+                </div>
+
+                <!-- Custom Web-Built Arcade Keyboard (Non-intrusive for Mobile Landscape) -->
+                <div class="tebak-keyboard-wrapper" id="tebak-virtual-keyboard">
+                    <div class="tebak-kb-row">
+                        <button type="button" class="tebak-kb-key" data-key="Q">Q</button>
+                        <button type="button" class="tebak-kb-key" data-key="W">W</button>
+                        <button type="button" class="tebak-kb-key" data-key="E">E</button>
+                        <button type="button" class="tebak-kb-key" data-key="R">R</button>
+                        <button type="button" class="tebak-kb-key" data-key="T">T</button>
+                        <button type="button" class="tebak-kb-key" data-key="Y">Y</button>
+                        <button type="button" class="tebak-kb-key" data-key="U">U</button>
+                        <button type="button" class="tebak-kb-key" data-key="I">I</button>
+                        <button type="button" class="tebak-kb-key" data-key="O">O</button>
+                        <button type="button" class="tebak-kb-key" data-key="P">P</button>
+                    </div>
+                    <div class="tebak-kb-row">
+                        <button type="button" class="tebak-kb-key" data-key="A">A</button>
+                        <button type="button" class="tebak-kb-key" data-key="S">S</button>
+                        <button type="button" class="tebak-kb-key" data-key="D">D</button>
+                        <button type="button" class="tebak-kb-key" data-key="F">F</button>
+                        <button type="button" class="tebak-kb-key" data-key="G">G</button>
+                        <button type="button" class="tebak-kb-key" data-key="H">H</button>
+                        <button type="button" class="tebak-kb-key" data-key="J">J</button>
+                        <button type="button" class="tebak-kb-key" data-key="K">K</button>
+                        <button type="button" class="tebak-kb-key" data-key="L">L</button>
+                    </div>
+                    <div class="tebak-kb-row">
+                        <button type="button" class="tebak-kb-key action-key" data-action="clear" title="Hapus Huruf">⌫ Hapus</button>
+                        <button type="button" class="tebak-kb-key" data-key="Z">Z</button>
+                        <button type="button" class="tebak-kb-key" data-key="X">X</button>
+                        <button type="button" class="tebak-kb-key" data-key="C">C</button>
+                        <button type="button" class="tebak-kb-key" data-key="V">V</button>
+                        <button type="button" class="tebak-kb-key" data-key="B">B</button>
+                        <button type="button" class="tebak-kb-key" data-key="N">N</button>
+                        <button type="button" class="tebak-kb-key" data-key="M">M</button>
+                        <button type="button" class="tebak-kb-key space-key" data-key=" " title="Spasi">␣ SPASI</button>
+                        <button type="button" class="tebak-kb-key action-key submit-key" data-action="submit" title="Kirim Jawaban">Kirim ↵</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: center; gap: 12px; margin-top: 14px;">
+                    <button class="btn-secondary" id="btn-tebak-hint">💡 Buka Petunjuk 1 Huruf (-15 💎)</button>
+                    <button class="btn-secondary" id="btn-tebak-skip">⏭️ Lewati Soal</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 6: RANDOMIZED DAILY QUIZ
+             ========================================== -->
+        <section id="view-daily-quiz" class="view">
+            <div class="selector-header">
+                <button class="btn-secondary" id="btn-back-from-quiz">← Menu</button>
+                <h2 style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--neon-gold);">DAILY VOCAB QUIZ</h2>
+                <div style="width: 80px;"></div>
+            </div>
+
+            <div class="minigame-card glass-panel" style="max-width: 620px; margin: 0 auto; padding: 24px;">
+                <span style="font-size: 2.4rem; margin-bottom: 8px; display: inline-block;">📜</span>
+                <div id="daily-quiz-progress-badge" style="display: inline-block; padding: 4px 14px; border-radius: 20px; background: rgba(255, 215, 0, 0.15); border: 1px solid var(--neon-gold); color: var(--neon-gold); font-family: var(--font-heading); font-size: 1rem; font-weight: 700; margin-bottom: 12px; letter-spacing: 1px;">SOAL 1 DARI 7</div>
+                <h3 id="daily-quiz-question" style="font-size: 1.25rem; margin-bottom: 22px; line-height: 1.5; color: #fff;">Pertanyaan Kuis Harian...</h3>
+
+                <div id="daily-quiz-options" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                    <!-- Option buttons A, B, C, D randomized dynamically -->
+                </div>
+
+                <div id="daily-quiz-feedback" style="display: none; padding: 14px; border-radius: 12px; margin-bottom: 16px; font-size: 0.95rem; line-height: 1.4;"></div>
+
+                <button class="btn-primary" id="btn-next-quiz" style="display: none; margin: 0 auto;">Soal Berikutnya →</button>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 7: SEPARATED BACKGROUND ARCHIVE (INDO VS EN)
+             ========================================== -->
+        <section id="view-archive" class="view">
+            <div class="selector-header">
+                <button class="btn-secondary" id="btn-back-from-archive">← Menu</button>
+                <h2 style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--neon-cyan);">BACKGROUND ARCHIVE</h2>
+                <div style="width: 80px;"></div>
+            </div>
+
+            <div class="lang-tabs" style="margin-bottom: 16px;">
+                <button class="lang-tab active" id="tab-archive-id">
+                    <span>🇮🇩</span> Koleksi Tema Warna Indonesia (<span id="archive-id-count">1</span>/5 Terbuka)
+                </button>
+                <button class="lang-tab" id="tab-archive-en">
+                    <span>🇬🇧</span> English Color Themes (<span id="archive-en-count">1</span>/5 Unlocked)
+                </button>
+            </div>
+
+            <div class="archive-grid" id="archive-grid-container">
+                <!-- Dynamic scenic cards rendered here -->
+            </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 8: 3-TIER PRESTIGIOUS CERTIFICATES
+             ========================================== -->
+        <section id="view-certificates" class="view">
+            <div class="selector-header">
+                <button class="btn-secondary" id="btn-back-from-cert">← Menu</button>
+                <h2 style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--neon-gold);">PRESTASI & SERTIFIKASI</h2>
+                <div style="width: 80px;"></div>
+            </div>
+
+            <div class="lang-tabs" style="margin-bottom: 20px;">
+                <button class="lang-tab active" id="btn-show-cert-id">🇮🇩 Tier 1: Sertifikat Bahasa Indonesia</button>
+                <button class="lang-tab" id="btn-show-cert-en">🇬🇧 Tier 2: English Proficiency</button>
+                <button class="lang-tab" id="btn-show-cert-grand">👑 Tier 3: Grand Finale Trophy</button>
+            </div>
+
+            <div class="cert-card-container glass-panel" id="certificate-display-card">
+                <!-- Dynamic certificate rendered here -->
+            </div>
+        </section>
+
+
+        <!-- VIEW 9: GUDANG KATA BILINGUAL -->
+        <section id="view-gudang-kata" class="view">
+            <div class="selector-header">
+                <button class="btn-secondary" id="btn-back-from-gudang">← Menu</button>
+                <h2 style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--neon-cyan);">📚 GUDANG KATA BILINGUAL</h2>
+                <div style="width: 80px;"></div>
+            </div>
+            <div class="gudang-header-panel glass-panel">
+                <div class="gudang-stats-summary">
+                    <div class="gudang-stat-item">
+                        <span class="gudang-stat-label">Total Ditemukan:</span>
+                        <span class="gudang-stat-value"><b id="gudang-stat-discovered" style="color: var(--neon-gold);">0</b> / <span id="gudang-stat-total">???</span> Kata</span>
+                    </div>
+                    <div class="gudang-progress-track">
+                        <div class="gudang-progress-fill" id="gudang-progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <span class="gudang-percent-badge" id="gudang-stat-percent">0% Terbuka</span>
+                </div>
+                <div class="gudang-search-wrap">
+                    <input type="text" id="gudang-search-input" class="gudang-search-input" placeholder="🔍 Cari kosa kata atau arti kata..." autocomplete="off">
+                    <button class="btn-secondary" id="btn-gudang-search-clear" style="padding: 8px 14px;" title="Reset Pencarian">✕</button>
+                </div>
+            </div>
+            <div class="lang-tabs" style="margin-bottom: 20px;">
+                <button class="lang-tab active" id="tab-gudang-id">🇮🇩 Bahasa Indonesia (<span id="gudang-tab-count-id">0</span>)</button>
+                <button class="lang-tab" id="tab-gudang-en">🇬🇧 English (<span id="gudang-tab-count-en">0</span>)</button>
+            </div>
+            <div class="gudang-grid" id="gudang-words-grid">
+            </div>
+        </section>
+    </div>
+
+    <!-- ==========================================
+         CUSTOM MODAL POPUP (ZERO BROWSER ALERT/CONFIRM)
+         ========================================== -->
+    <div id="custom-modal-overlay" class="custom-modal-overlay">
+        <div class="custom-modal-card">
+    <div class="modal-icon-badge" id="custom-modal-icon">&#x2139;&#xFE0F;</div>
+            <h3 class="modal-title-text" id="custom-modal-title">Pemberitahuan</h3>
+            <p class="modal-body-text" id="custom-modal-msg">Isi pesan informasi game...</p>
+            <div class="modal-action-row" id="custom-modal-actions">
+                <button class="btn-primary" id="btn-custom-modal-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         CENTERED DYNAMIC AUTO-CLOSING TTS POPUP
+         ========================================== -->
+    <div id="centered-tts-popup" class="centered-tts-popup">
+        <div class="popup-top-line">
+            <span class="popup-word" id="popup-word-text">KATA</span>
+            <div style="display: flex; gap: 6px;">
+                <button class="icon-btn" id="btn-popup-audio" title="Ulangi Audio">🔊</button>
+                <button class="icon-btn" id="btn-popup-close" title="Tutup">✕</button>
+            </div>
+        </div>
+        <p class="popup-definition" id="popup-def-text">Definisi kosa kata...</p>
+        <div class="popup-progress-bar" id="popup-progress"></div>
+    </div>
+
+    <!-- ==========================================
+         MODAL: PROFILE & AVATAR CUSTOMIZATION
+         ========================================== -->
+    <div class="custom-modal-overlay" id="modal-profile">
+        <div class="custom-modal-card profile-modal-wide" style="max-width: 560px; text-align: left;">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.5rem; color: var(--neon-cyan);">&#x1F9D1;&#x200D;&#x1F4BB; PROFIL PENJELAJAH KATA</h3>
+                <button class="icon-btn" id="btn-close-profile-modal">&#x2715;</button>
+            </div>
+
+            <!-- Statistics Panel -->
+            <div class="profile-stats-panel" id="profile-stats-panel">
+                <div class="profile-stat-row">
+                    <div class="profile-stat-box">
+                        <span class="pstat-label">&#x1F4AC; Kata Ditemukan</span>
+                        <span class="pstat-val" id="pstat-words-total">0</span>
+                    </div>
+                    <div class="profile-stat-box">
+                        <span class="pstat-label">&#x1F1EE;&#x1F1E9; Level Indonesia</span>
+                        <span class="pstat-val" id="pstat-id-level">0 / 100</span>
+                    </div>
+                    <div class="profile-stat-box">
+                        <span class="pstat-label">&#x1F1EC;&#x1F1E7; Level English</span>
+                        <span class="pstat-val" id="pstat-en-level">0 / 100</span>
+                    </div>
+                    <div class="profile-stat-box">
+                        <span class="pstat-label">&#x1F3AF; Total Selesai</span>
+                        <span class="pstat-val" id="pstat-total-pct">0%</span>
+                    </div>
+                </div>
+                <div class="profile-stat-row" style="margin-top: 10px;">
+                    <div class="profile-stat-box">
+                        <span class="pstat-label">&#x1F48E; Gems Terkumpul</span>
+                        <span class="pstat-val" id="pstat-gems" style="color: var(--neon-gold);">0</span>
+                    </div>
+                    <div class="profile-stat-box">
+                        <span class="pstat-label">&#x1F4DA; Kata Gudang</span>
+                        <span class="pstat-val" id="pstat-vault">0</span>
+                    </div>
+                    <div class="profile-stat-box">
+                        <span class="pstat-label">&#x1F3C6; Level Aktif</span>
+                        <span class="pstat-val" id="pstat-active-lvl" style="color: var(--neon-pink);">-</span>
+                    </div>
+                    <div class="profile-stat-box">
+                        <span class="pstat-label">&#x1F396;&#xFE0F; Gelar</span>
+                        <span class="pstat-val" id="pstat-title" style="font-size: 0.75rem; color: var(--neon-cyan);">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Name Input -->
+            <div style="margin-bottom: 14px; margin-top: 16px;">
+                <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Nama Pemain:</label>
+                <input type="text" id="profile-name-input" class="profile-name-input" placeholder="Masukkan nama pemain..." maxlength="18" autocomplete="off" spellcheck="false">
+            </div>
+
+            <!-- Avatar Selection -->
+            <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Pilih Avatar:</label>
+            <div class="avatar-grid" id="avatar-selection-grid">
+                <!-- Avatar choices rendered dynamically -->
+            </div>
+
+            <!-- Actions -->
+            <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn-secondary" id="btn-reset-data" style="color: #ff6b6b;" title="Reset Progress">&#x1F5D1; Reset Data</button>
+                <button class="btn-primary" id="btn-save-profile">&#x2713; Simpan Profil</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL: TUTORIAL & CARA BERMAIN
+         ========================================== -->
+    <div class="custom-modal-overlay" id="modal-tutorial">
+        <div class="custom-modal-card profile-modal-wide" style="max-width: 620px; max-height: 85vh; overflow-y: auto; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(0, 242, 254, 0.25); padding-bottom: 12px;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.5rem; color: var(--neon-cyan);">📖 PANDUAN &amp; CARA BERMAIN</h3>
+                <button class="icon-btn" id="btn-close-tutorial-modal">✕</button>
+            </div>
+
+            <div class="tutorial-content" style="display: flex; flex-direction: column; gap: 16px; font-size: 0.92rem; line-height: 1.6; color: var(--text-secondary);">
+                
+                <!-- Section 1: Word Connect -->
+                <div class="tutorial-section glass-panel" style="padding: 14px 16px; border-radius: 12px;">
+                    <h4 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--neon-gold); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+                        <span>🔤</span> 1. Mode Menghubungkan Kata (100 Level)
+                    </h4>
+                    <p>• <strong>Cara Menghubungkan:</strong> Tarik garis (drag) menghubungkan huruf-huruf di lingkaran, atau ketuk (tap) huruf satu per satu.</p>
+                    <p>• <strong>Keyboard Fisik &amp; Virtual:</strong> Kamu juga bisa mengetik langsung dengan keyboard laptop/PC, atau membuka <em>Keyboard Virtual</em> dengan menekan tombol ⌨️ di layar.</p>
+                    <p>• <strong>Kotak Kata:</strong> Kata target yang benar akan otomatis terisi di papan teka-teki silang, disertai pelafalan audio TTS dan arti definisinya.</p>
+                    <p>• <strong>Toples Kata Bonus (🏺):</strong> Kata resmi terverifikasi di luar target utama akan disimpan ke dalam toples bonus dan memberimu <strong>+5 💎 Gems</strong> per kata!</p>
+                </div>
+
+                <!-- Section 2: Boosters -->
+                <div class="tutorial-section glass-panel" style="padding: 14px 16px; border-radius: 12px;">
+                    <h4 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--neon-pink); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+                        <span>⚡</span> 2. Power-Ups &amp; Fitur Booster
+                    </h4>
+                    <p>• 🪄 <strong>Sihir (40 💎):</strong> Membuka 1 petak huruf acak di papan.</p>
+                    <p>• 💣 <strong>Bom (75 💎):</strong> Meledakkan dan membuka satu area klaster kata sekaligus (hingga 3 huruf berurutan di kata yang sama).</p>
+                    <p>• 🔨 <strong>Palu (50 💎):</strong> Aktifkan mode palu, lalu ketuk petak kosong mana saja yang ingin kamu buka secara spesifik!</p>
+                    <p>• 🔀 <strong>Acak Huruf:</strong> Menata ulang urutan huruf pada lingkaran tanpa memotong Gems.</p>
+                </div>
+
+                <!-- Section 3: Game Modes -->
+                <div class="tutorial-section glass-panel" style="padding: 14px 16px; border-radius: 12px;">
+                    <h4 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--neon-cyan); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+                        <span>🎮</span> 3. Mode Permainan Lainnya
+                    </h4>
+                    <p>• ⏱️ <strong>Speed Run:</strong> Bentuk kata sebanyak mungkin dalam waktu 60 detik untuk memecahkan rekor skor tertinggi dan bonus Gems berlimpah!</p>
+                    <p>• 🎨 <strong>Tebak Gambar (Rebus Puzzle):</strong> Pecahkan teka-teki visual dari tingkat Mudah (1 gambar), Normal (2 gambar), Sulit (3 gambar + modifikasi huruf), hingga Ekstrim (multi-clue + logika matematika). Jawaban bisa diketik <em>dengan spasi</em> maupun <em>tanpa spasi</em>!</p>
+                    <p>• 📅 <strong>Daily Quiz:</strong> Kuis kosakata harian pilihan ganda 4 opsi untuk mengasah pemahaman arti kata dan mendapatkan hadiah harian.</p>
+                    <p>• 📚 <strong>Gudang Kata:</strong> Kamus kosakata dwibahasa (Indonesia &amp; Inggris) yang merekam seluruh kata yang telah kamu temukan beserta definisi dan pengucapan aslinya.</p>
+                    <p>• 🏆 <strong>Sertifikat &amp; Prestasi:</strong> Raih Sertifikat Bahasa Indonesia (100 Level), Sertifikat English Proficiency (100 Level), dan Grand Finale Trophy dwibahasa!</p>
+                </div>
+
+                <!-- Section 4: Tips & Gems -->
+                <div class="tutorial-section glass-panel" style="padding: 14px 16px; border-radius: 12px;">
+                    <h4 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--neon-emerald); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+                        <span>💎</span> 4. Tips Mengumpulkan Gems
+                    </h4>
+                    <p>• Selesaikan level kata baru (+25 💎).</p>
+                    <p>• Tebak kata bonus ke dalam toples (+5 💎).</p>
+                    <p>• Jawab benar di Tebak Gambar (+20 💎) dan Daily Quiz (+25 💎).</p>
+                    <p>• Klaim <strong>Peti Hadiah Waktu Bermain (🎁✨)</strong> setiap beberapa menit saat kamu aktif bermain (+30 💎)!</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 18px; text-align: center;">
+                <button class="btn-primary" id="btn-close-tutorial-ok" style="min-width: 140px;">Mengerti, Mulai Main! 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Master Unified Script -->
+    <script src="script.js"></script>
+</body>
+</html>
